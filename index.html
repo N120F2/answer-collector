@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
+        async function uploadData() {
+            console.log('Clicked');
+
+        }
     </script>
 
 
@@ -18,7 +22,20 @@
             <header id="headTitle">
                 <h1 id='welcomeTitle'> </h1>
             </header>
-        <div>dsfsdfds</div>
+
+            <form id='enterForm' action='javascript: document.getElementById("enterButton").click();'>
+                <label id="inputLabel1" style="font-weight: bold;">Please enter your name:</label></br>
+                <input type="text" id="nameInput" placeholder="Your name.."></br>
+
+                <label id="inputLabel2" style="font-weight: bold;">Please enter a question:</label></br>
+                <textarea id="question" placeholder="Past question here" rows="4" cols="50"></textarea></br>
+
+                <label id="inputLabel3" style="font-weight: bold;">Please enter a correct answer:</label></br>
+                <textarea  id="answer" placeholder="Past answer here" rows="4" cols="50"></textarea></br>
+
+                <button type="button" class="form_button" id="enterButton" onclick='uploadData();'>Enter</button>
+                
+            </form>
         </div>
 
 

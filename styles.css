@@ -15,4 +15,15 @@ footer {
     text-align: left;
     height: 3.5rem;
   }
-  
+#enterForm {
+  text-align: left;
+  display: block;
+  margin:  auto;
+  font-size: 150%;
+  width: 30%;
+  margin-top: 5rem;
+  border: 3px solid green;
+}
+textarea {
+  resize: none;
+}
