@@ -1,0 +1,18 @@
+#page-container {
+    position: relative;
+    min-height: 96vh;
+  }
+  
+#content-wrap {   
+    padding-bottom: 3.5rem;
+  }
+footer {
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: left;
+    height: 3.5rem;
+  }
+  
