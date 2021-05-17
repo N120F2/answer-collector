@@ -6,9 +6,59 @@
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
+        async function add(name, question, answer) {
+            return new Promise(
+                async (resolve, reject) => {
+                    try {
+                        const response = await fetch('http://' + location.hostname + ':8080/add', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json;charset=utf-8'
+                            },
+                            body: JSON.stringify({
+                                login: name,
+                                question: question,
+                                answer: answer
+                            })
+                        });
+                        if (!response.ok) {
+                            throw new Error("HTTP status " + response.status);
+                        }
+                        const result = await response.text();
+                        resolve(result);
+                    } catch (e) {
+                        reject("error");
+                    }
+                });
+        }
         async function uploadData() {
-            console.log('Clicked');
-
+            let name = document.getElementById("nameInput").value;
+            let question = document.getElementById('question').value;
+            let answer = document.getElementById('answer').value;
+            document.getElementById("nameInput").value = '';
+            document.getElementById('question').value = '';
+            document.getElementById('answer').value = '';
+            let result = null;
+            try {
+                result = await add(name, question, answer);
+                console.log(result);
+            }
+            catch (e) {
+                console.log(e);
+            }
+            console.log(result  );
+            if(result == "good"){
+                document.getElementById("infoLabel").value = 'added';
+            }else{
+                document.getElementById("infoLabel").value = 'Some error! Try again.';
+                document.getElementById('infoLabel').style.color = 'red';
+            }
+            document.getElementById('infoLabel').style.display = 'block';
+            setTimeout(()=>{
+                document.getElementById('infoLabel').style.display = 'none';
+                document.getElementById('infoLabel').style.color = 'black';
+            }, 2000)
         }
     </script>
 
@@ -31,11 +81,14 @@
                 <textarea id="question" placeholder="Past question here" rows="4" cols="50"></textarea></br>
 
                 <label id="inputLabel3" style="font-weight: bold;">Please enter a correct answer:</label></br>
-                <textarea  id="answer" placeholder="Past answer here" rows="4" cols="50"></textarea></br>
+                <textarea id="answer" placeholder="Past answer here" rows="4" cols="50"></textarea></br>
+
+                <label id="infoLabel" style="font-weight: bold; color:red; display:none"></label></br>
 
                 <button type="button" class="form_button" id="enterButton" onclick='uploadData();'>Enter</button>
-                
+
             </form>
+            <a href="/download" download="answers.txt">Download</a>
         </div>
 
 

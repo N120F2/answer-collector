@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const fs = require('fs')
+//global answers
+let answersMap = new Map();
 //server generation
 const port = 8080;
 const app = express();
@@ -26,6 +28,32 @@ app.get("/", function (request, response) {
     response.status(200);
     response.set('Content-Type', 'text/html;charset=utf-8');
     response.sendFile(dirForApp + "/index.html");
+});
+app.post("/add", function (request, response) {
+    console.log('Method: POST, /add');
+    let login = request.body.login;
+    let question = request.body.question;
+    let answer = request.body.answer;
+    if(login !== undefined && question !== undefined && answer !== undefined ){  
+        //question  delete lead and ending whitespaces    
+        //check allready added
+        if(!answersMap.has(question)){
+            //add to map 
+            answersMap.set(question, answer);
+            answersObj.question
+        }else{
+
+        }
+        //map to obj, obj to json, json to file                
+    }
+    response.status(200);
+    response.set('Content-Type', 'application/json;charset=utf-8');
+    response.send('good');
+});
+app.get("/download", function (request, response) {
+    console.log('Method: GET, /download');
+    const file = dirForApp + '/file.ini';
+    response.download(file, 'answers.txt');
 });
 
 //start app
