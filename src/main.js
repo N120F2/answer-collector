@@ -6,13 +6,23 @@ let answersMap = new Map();
 try {
     let answersData = fs.readFileSync('./data/answers.json')
     console.log('Raw data: ' + answersData);
-    if(answersData == '') answersData = '{}';  
+    if (answersData == '') answersData = '{}';
     let ansersObj = JSON.parse(answersData);
-    answersMap = new Map(Object.entries(ansersObj));
+    answersMap = new Map(Object.entries(ansersObj)); 
     console.log('Answers loaded');
 } catch (err) {
-    console.error(err);
-    process.exit(1);
+    if (err.errno == -4058) {
+        try {
+            const data = fs.writeFileSync('data/answers.json', JSON.stringify({}))
+            console.log('New file created');
+        } catch (err) {
+            console.error(err);
+            process.exit(1);
+        }
+    } else {
+        console.error(err);
+        process.exit(1);
+    }
 }
 //log all data
 function logData(login, question, answer) {
