@@ -23,7 +23,12 @@ footer {
   width: 30%;
   margin-top: 5rem;
   border: 3px solid green;
+  min-width: fit-content;
 }
 textarea {
   resize: none;
+}
+#welcomeTitle {
+  text-align: center;
+  font-weight: bold;
 }

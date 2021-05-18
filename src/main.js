@@ -58,7 +58,7 @@ function setHeadrsForCORS(response) {
 app.use(bodyParser.json({ extended: false }));
 //temp cors for debug
 app.use(function (request, response, next) {
-    setHeadrsForCORS(response);
+    //setHeadrsForCORS(response);
     next();
 });
 //stataic site
