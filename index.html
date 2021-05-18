@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
+        'use strict'       
+        document.addEventListener('DOMContentLoaded', function () { // Аналог $(document).ready(function(){
+            document.getElementById("nameInput").value = localStorage.getItem('login');
+        });
         async function add(name, question, answer) {
             return new Promise(
                 async (resolve, reject) => {
@@ -33,12 +37,25 @@
                 });
         }
         async function uploadData() {
-            let name = document.getElementById("nameInput").value;
+            console.log(document.getElementById("nameInput").selectedOptions[0].value);
+            if(document.getElementById("nameInput").selectedOptions[0].value == 'deny') {
+                document.getElementById("infoLabel").innerText = 'Pick your name!!!';
+                document.getElementById('infoLabel').style.color = 'red';
+                document.getElementById('infoLabel').style.display = 'block';
+                document.getElementById('enterButton').style.display = 'none';
+                setTimeout(() => {
+                document.getElementById('infoLabel').style.display = 'none'; 
+                document.getElementById('enterButton').style.display = 'block';             
+            }, 2000)
+                return;
+            }
+            let name = document.getElementById("nameInput").selectedOptions[0].value;
             let question = document.getElementById('question').value;
             let answer = document.getElementById('answer').value;
-            document.getElementById("nameInput").value = '';
+            //document.getElementById("nameInput").value = '';
             document.getElementById('question').value = '';
             document.getElementById('answer').value = '';
+            if(localStorage.getItem('login') != name) localStorage.setItem('login', name);
             let result = null;
             try {
                 result = await add(name, question, answer);
@@ -47,17 +64,20 @@
             catch (e) {
                 console.log(e);
             }
-            console.log(result  );
-            if(result == "good"){
-                document.getElementById("infoLabel").value = 'added';
-            }else{
-                document.getElementById("infoLabel").value = 'Some error! Try again.';
+            console.log(result);
+            if (result == "good") {
+                document.getElementById("infoLabel").innerText = 'Answer successfully added';
+                document.getElementById('infoLabel').style.color = 'black';
+            } else {
+                document.getElementById("infoLabel").innerText = 'Some error! Try again.';
                 document.getElementById('infoLabel').style.color = 'red';
             }
             document.getElementById('infoLabel').style.display = 'block';
-            setTimeout(()=>{
+            document.getElementById('enterButton').style.display = 'none';
+            setTimeout(() => {
                 document.getElementById('infoLabel').style.display = 'none';
-                document.getElementById('infoLabel').style.color = 'black';
+                document.getElementById('enterButton').style.display = 'block';
+                           
             }, 2000)
         }
     </script>
@@ -75,7 +95,14 @@
 
             <form id='enterForm' action='javascript: document.getElementById("enterButton").click();'>
                 <label id="inputLabel1" style="font-weight: bold;">Please enter your name:</label></br>
-                <input type="text" id="nameInput" placeholder="Your name.."></br>
+                <!--<input type="text" id="nameInput" placeholder="Your name.."></br>-->
+                <select size="1" id="nameInput"  required form="enterForm" >
+                    <option value='deny' selected  disabled>Your name</option>
+                    <option value="Piko">Piko</option>
+                    <option value="Vlad">Vlad</option>
+                    <option value="Anya">Anya</option>
+                    <option value="Dima">Dima</option>
+                   </select></br>
 
                 <label id="inputLabel2" style="font-weight: bold;">Please enter a question:</label></br>
                 <textarea id="question" placeholder="Past question here" rows="4" cols="50"></textarea></br>

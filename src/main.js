@@ -3,6 +3,37 @@ const bodyParser = require("body-parser");
 const fs = require('fs')
 //global answers
 let answersMap = new Map();
+try {
+    let answersData = fs.readFileSync('./data/answers.json')
+    console.log('Raw data: ' + answersData);
+    if(answersData == '') answersData = '{}';  
+    let ansersObj = JSON.parse(answersData);
+    answersMap = new Map(Object.entries(ansersObj));
+    console.log('Answers loaded');
+} catch (err) {
+    console.error(err);
+    process.exit(1);
+}
+//log all data
+function logData(login, question, answer) {
+    let content = `Login: ${login};\nQustion:\n"${question}";\nAnswer:\n"${answer}";\nDate: ${new Date()}\n###\n`
+    fs.appendFile('.log/dataLog.log', content, (err) => {
+        if (err) {
+            console.error(err);
+            return
+        }
+    })
+}
+//update answer data
+function updateAnswersFile(answMap) {
+    let answObj = Object.fromEntries(answMap)
+    try {
+        const data = fs.writeFileSync('data/answers.json', JSON.stringify(answObj))
+        console.log('Answers updated');
+    } catch (err) {
+        console.error(err)
+    }
+}
 //server generation
 const port = 8080;
 const app = express();
@@ -34,25 +65,34 @@ app.post("/add", function (request, response) {
     let login = request.body.login;
     let question = request.body.question;
     let answer = request.body.answer;
-    if(login !== undefined && question !== undefined && answer !== undefined ){  
-        //question  delete lead and ending whitespaces    
+    if (login !== undefined && question !== undefined && answer !== undefined) {
+        //log all approved  request
+        logData(login, question, answer);
+        //question  delete lead and ending whitespaces
+        let trimmedQuestion = question.trim();
+        //.localeCompare()    
         //check allready added
-        if(!answersMap.has(question)){
+        if (!answersMap.has(trimmedQuestion)) {
             //add to map 
-            answersMap.set(question, answer);
-            answersObj.question
-        }else{
-
+            answersMap.set(trimmedQuestion, answer);
+            console.log('New question added!');
+            updateAnswersFile(answersMap);
+        } else {
+            console.log('Already added question!');
         }
-        //map to obj, obj to json, json to file                
+        //map to obj, obj to json, json to file  
+        response.status(200);
+        response.set('Content-Type', 'application/json;charset=utf-8');
+        response.send('good');
+    } else {
+        response.status(400);
+        response.set('Content-Type', 'application/json;charset=utf-8');
+        response.send('bad');
     }
-    response.status(200);
-    response.set('Content-Type', 'application/json;charset=utf-8');
-    response.send('good');
 });
 app.get("/download", function (request, response) {
     console.log('Method: GET, /download');
-    const file = dirForApp + '/file.ini';
+    const file = dirForApp + 'data/answers.json';
     response.download(file, 'answers.txt');
 });
 
