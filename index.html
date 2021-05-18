@@ -29,15 +29,16 @@
             }
             return outResult;
         }
-        document.addEventListener('DOMContentLoaded', function () { // Аналог $(document).ready(function(){
-            document.getElementById("nameInput").value = localStorage.getItem('login');
+        document.addEventListener('DOMContentLoaded', function () {
+            let stroragedLogin = localStorage.getItem('login');
+            if (stroragedLogin !== null) document.getElementById("nameInput").value = stroragedLogin;
             getContributors()
-            .then((contributors)=>{
-                loadContrTable(contributors);
-            })
-            .catch(() => {
-                console.log("Contributors table loading failed");                
-            });
+                .then((contributors) => {
+                    loadContrTable(contributors);
+                })
+                .catch(() => {
+                    console.log("Contributors table loading failed");
+                });
         });
         async function add(name, question, answer) {
             return new Promise(
@@ -110,24 +111,27 @@
             }, 2000)
         }
         function loadContrTable(contributorsObj) {
-            var form = document.getElementById('enterForm');
-            var tbl = document.createElement('table');
-            tbl.style.width = 'auto';
+            var container = document.getElementById('contributorsContainer');
+            var tbl = document.createElement('table');            
             tbl.style.display = 'inline-block';//inline-block
-            tbl.setAttribute('border', '1');
+            tbl.setAttribute('id', 'contribTable');      
             var tbdy = document.createElement('tbody');
             for (let name in contributorsObj) {
                 var tr = document.createElement('tr');
                 for (var j = 0; j < 2; j++) {
-                    var td = document.createElement('td');
-                    if (j == 0) td.innerText = name;
-                    else td.innerText = contributorsObj[name];
+                    var td = document.createElement('td');                    
+                    if (j == 0){
+                        td.innerText = name;                      
+                    } 
+                    else {
+                        td.innerText = contributorsObj[name];                        
+                    }
                     tr.appendChild(td);
                 }
                 tbdy.appendChild(tr);
             }
             tbl.appendChild(tbdy);
-            form.before(tbl);
+            container.appendChild(tbl);
         }
     </script>
 
@@ -141,39 +145,40 @@
             <header id="headTitle">
                 <h1 id='welcomeTitle'>Answer Collector</h1>
             </header>
-            <div id='contributorsContainer'>
-                <table>
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 300px;">
+                        <div id='contributorsContainer'> </div>
+                    </td>
+                    <td >
+                        <form id='enterForm' action='javascript: document.getElementById("enterButton").click();'>
+                            <label id="inputLabel1" style="font-weight: bold;">Please enter your name:</label></br>
+                            <!--<input type="text" id="nameInput" placeholder="Your name.."></br>-->
+                            <select size="1" id="nameInput" required form="enterForm">
+                                <option value='deny' selected disabled>Your name</option>
+                                <option value="Piko">Piko</option>
+                                <option value="Vlad">Vlad</option>
+                                <option value="Anya">Anya</option>
+                                <option value="Dima">Dima</option>
+                            </select></br>
 
-                </table>
+                            <label id="inputLabel2" style="font-weight: bold;">Please enter a question:</label></br>
+                            <textarea id="question" placeholder="Past question here" rows="4" cols="50"></textarea></br>
 
-            </div>
+                            <label id="inputLabel3" style="font-weight: bold;">Please enter a correct
+                                answer:</label></br>
+                            <textarea id="answer" placeholder="Past answer here" rows="4" cols="50"></textarea></br>
 
-            <form id='enterForm' action='javascript: document.getElementById("enterButton").click();'>
-                <label id="inputLabel1" style="font-weight: bold;">Please enter your name:</label></br>
-                <!--<input type="text" id="nameInput" placeholder="Your name.."></br>-->
-                <select size="1" id="nameInput" required form="enterForm">
-                    <option value='deny' selected disabled>Your name</option>
-                    <option value="Piko">Piko</option>
-                    <option value="Vlad">Vlad</option>
-                    <option value="Anya">Anya</option>
-                    <option value="Dima">Dima</option>
-                </select></br>
+                            <label id="infoLabel" style="font-weight: bold; color:red; display:none"></label></br>
 
-                <label id="inputLabel2" style="font-weight: bold;">Please enter a question:</label></br>
-                <textarea id="question" placeholder="Past question here" rows="4" cols="50"></textarea></br>
-
-                <label id="inputLabel3" style="font-weight: bold;">Please enter a correct answer:</label></br>
-                <textarea id="answer" placeholder="Past answer here" rows="4" cols="50"></textarea></br>
-
-                <label id="infoLabel" style="font-weight: bold; color:red; display:none"></label></br>
-
-                <button type="button" class="form_button" id="enterButton" onclick='uploadData();'>Enter</button>
-
-            </form>
+                            <button type="button" class="form_button" id="enterButton"
+                                onclick='uploadData();'>Enter</button>
+                        </form>
+                    </td>
+                </tr>                
+            </table>
             <a href="/download" download="answers.txt" style='display: none;'>Download</a>
         </div>
-
-
         <footer id="discription">
             Version: 0.0</br>
             Uladzislau Sobal&copy;2021</br>
