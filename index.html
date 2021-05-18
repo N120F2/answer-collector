@@ -6,9 +6,38 @@
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
-        'use strict'       
+        'use strict'
+        async function getContributors() {
+            let outResult = undefined;
+            try {
+                const response = await fetch('http://' + location.hostname + ':8080/contributors', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                });
+                if (!response.ok) {
+                    throw new Error("HTTP status " + response.status);
+                }
+                const result = await response.text();
+                console.log('Contributors loaded');
+                console.log(result);
+                outResult = JSON.parse(result);
+            } catch (e) {
+                console.error(e);
+            }
+            return outResult;
+        }
         document.addEventListener('DOMContentLoaded', function () { // Аналог $(document).ready(function(){
             document.getElementById("nameInput").value = localStorage.getItem('login');
+            getContributors()
+            .then((contributors)=>{
+                loadContrTable(contributors);
+            })
+            .catch(() => {
+                console.log("Contributors table loading failed");                
+            });
         });
         async function add(name, question, answer) {
             return new Promise(
@@ -38,15 +67,15 @@
         }
         async function uploadData() {
             console.log(document.getElementById("nameInput").selectedOptions[0].value);
-            if(document.getElementById("nameInput").selectedOptions[0].value == 'deny') {
+            if (document.getElementById("nameInput").selectedOptions[0].value == 'deny') {
                 document.getElementById("infoLabel").innerText = 'Pick your name!!!';
                 document.getElementById('infoLabel').style.color = 'red';
                 document.getElementById('infoLabel').style.display = 'block';
                 document.getElementById('enterButton').style.display = 'none';
                 setTimeout(() => {
-                document.getElementById('infoLabel').style.display = 'none'; 
-                document.getElementById('enterButton').style.display = 'block';             
-            }, 2000)
+                    document.getElementById('infoLabel').style.display = 'none';
+                    document.getElementById('enterButton').style.display = 'block';
+                }, 2000)
                 return;
             }
             let name = document.getElementById("nameInput").selectedOptions[0].value;
@@ -55,7 +84,7 @@
             //document.getElementById("nameInput").value = '';
             document.getElementById('question').value = '';
             document.getElementById('answer').value = '';
-            if(localStorage.getItem('login') != name) localStorage.setItem('login', name);
+            if (localStorage.getItem('login') != name) localStorage.setItem('login', name);
             let result = null;
             try {
                 result = await add(name, question, answer);
@@ -77,8 +106,28 @@
             setTimeout(() => {
                 document.getElementById('infoLabel').style.display = 'none';
                 document.getElementById('enterButton').style.display = 'block';
-                           
+
             }, 2000)
+        }
+        function loadContrTable(contributorsObj) {
+            var form = document.getElementById('enterForm');
+            var tbl = document.createElement('table');
+            tbl.style.width = 'auto';
+            tbl.style.display = 'inline-block';//inline-block
+            tbl.setAttribute('border', '1');
+            var tbdy = document.createElement('tbody');
+            for (let name in contributorsObj) {
+                var tr = document.createElement('tr');
+                for (var j = 0; j < 2; j++) {
+                    var td = document.createElement('td');
+                    if (j == 0) td.innerText = name;
+                    else td.innerText = contributorsObj[name];
+                    tr.appendChild(td);
+                }
+                tbdy.appendChild(tr);
+            }
+            tbl.appendChild(tbdy);
+            form.before(tbl);
         }
     </script>
 
@@ -92,17 +141,23 @@
             <header id="headTitle">
                 <h1 id='welcomeTitle'>Answer Collector</h1>
             </header>
+            <div id='contributorsContainer'>
+                <table>
+
+                </table>
+
+            </div>
 
             <form id='enterForm' action='javascript: document.getElementById("enterButton").click();'>
                 <label id="inputLabel1" style="font-weight: bold;">Please enter your name:</label></br>
                 <!--<input type="text" id="nameInput" placeholder="Your name.."></br>-->
-                <select size="1" id="nameInput"  required form="enterForm" >
-                    <option value='deny' selected  disabled>Your name</option>
+                <select size="1" id="nameInput" required form="enterForm">
+                    <option value='deny' selected disabled>Your name</option>
                     <option value="Piko">Piko</option>
                     <option value="Vlad">Vlad</option>
                     <option value="Anya">Anya</option>
                     <option value="Dima">Dima</option>
-                   </select></br>
+                </select></br>
 
                 <label id="inputLabel2" style="font-weight: bold;">Please enter a question:</label></br>
                 <textarea id="question" placeholder="Past question here" rows="4" cols="50"></textarea></br>

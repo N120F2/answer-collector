@@ -8,7 +8,7 @@ try {
     console.log('Raw data: ' + answersData);
     if (answersData == '') answersData = '{}';
     let ansersObj = JSON.parse(answersData);
-    answersMap = new Map(Object.entries(ansersObj)); 
+    answersMap = new Map(Object.entries(ansersObj));
     console.log('Answers loaded');
 } catch (err) {
     if (err.errno == -4058) {
@@ -22,6 +22,46 @@ try {
     } else {
         console.error(err);
         process.exit(1);
+    }
+}
+//user contributions
+let userContributionsMap = new Map();
+try {
+    let contributionsData = fs.readFileSync('./data/contribution.json')
+    console.log('Raw data contributions: ' + contributionsData);
+    if (contributionsData == '') contributionsData = '{}';
+    let contributionsObj = JSON.parse(contributionsData);
+    userContributionsMap = new Map(Object.entries(contributionsObj));
+    console.log('Contributions loaded');
+} catch (err) {
+    if (err.errno == -4058) {
+        try {
+            const data = fs.writeFileSync('data/contribution.json', JSON.stringify({}))
+            console.log('New file created');
+        } catch (err) {
+            console.error(err);
+            process.exit(1);
+        }
+    } else {
+        console.error(err);
+        process.exit(1);
+    }
+}
+//increment contribution
+function incrementContrubution(login) {
+    let contributionValue = userContributionsMap.get(login);
+    if (contributionValue === undefined) {
+        userContributionsMap.set(login, 1);
+    } else {
+        userContributionsMap.set(login, userContributionsMap.get(login) + 1);
+    }
+    //write to file
+    let contrObj = Object.fromEntries(userContributionsMap)
+    try {
+        const data = fs.writeFileSync('data/contribution.json', JSON.stringify(contrObj))
+        console.log('Contributions updated');
+    } catch (err) {
+        console.error(err)
     }
 }
 //log all data
@@ -86,6 +126,7 @@ app.post("/add", function (request, response) {
             //add to map 
             answersMap.set(trimmedQuestion, answer);
             console.log('New question added!');
+            incrementContrubution(login);
             updateAnswersFile(answersMap);
         } else {
             console.log('Already added question!');
@@ -104,6 +145,20 @@ app.get("/download", function (request, response) {
     console.log('Method: GET, /download');
     const file = dirForApp + 'data/answers.json';
     response.download(file, 'answers.txt');
+});
+app.get("/contributors", function (request, response) {
+    console.log('Method: GET, /contributors');   
+    let contributorsJson = null;
+    try {
+        let contributorsObj = Object.fromEntries(userContributionsMap)
+        contributorsJson = JSON.stringify(contributorsObj);
+    } catch (err) {
+        console.error(err);
+        response.sendStatus(500);
+    }
+    response.status(200);
+    response.set('Content-Type', 'application/json;charset=utf-8');
+    response.send(contributorsJson);
 });
 
 //start app
