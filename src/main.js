@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const fs = require('fs')
+const fs = require('fs');
+const docx = require("docx");
 //global answers
 let answersMap = new Map();
 try {
@@ -147,7 +148,7 @@ app.get("/download", function (request, response) {
     response.download(file, 'answers.txt');
 });
 app.get("/contributors", function (request, response) {
-    console.log('Method: GET, /contributors');   
+    console.log('Method: GET, /contributors');
     let contributorsJson = null;
     try {
         let contributorsObj = Object.fromEntries(userContributionsMap)
@@ -159,6 +160,80 @@ app.get("/contributors", function (request, response) {
     response.status(200);
     response.set('Content-Type', 'application/json;charset=utf-8');
     response.send(contributorsJson);
+});
+async function generateDOCX() {
+    let tableRows =[];
+    //cell width
+    let widthProp = {
+        size: 5000,
+        type: docx.WidthType.DXA,
+    };
+    //generate rows
+    for (let entry of answersMap) {
+        let tableRow = new docx.TableRow({
+            children: [
+                new docx.TableCell({
+                    children: [ new docx.Paragraph({children: [new docx.TextRun({text:entry[0], size: 28})]})],
+                    width: widthProp
+                }),
+                new docx.TableCell({
+                    children: [ new docx.Paragraph({children: [new docx.TextRun({text:entry[1], size: 28})]})],
+                    width: widthProp
+                }),
+            ],
+        });
+        tableRows.push(tableRow);
+    }
+    //generate table
+    const table = new docx.Table({
+        rows: tableRows
+    });
+    //generate doc
+    const doc = new docx.Document({
+        sections: [{
+            properties: {},
+            children:
+                [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun("Answers prepared using answer-collector."),
+                            new docx.ExternalHyperlink({
+                                child: new docx.TextRun({
+                                    text: "Github",
+                                    style: "Hyperlink",
+                                }),
+                                link: "https://github.com/N120F2/answer-collector",
+                            }),
+                        ]
+                    }),
+                    table
+                ],
+        }]
+    });
+
+    return new Promise((resolve, reject) => {
+        //export to file
+        docx.Packer.toBuffer(doc).then((buffer) => {
+            fs.writeFileSync("data/answers.docx", buffer);
+            resolve("File generated");
+        })
+        .catch(()=>{
+            reject("Error while generating file");
+        });
+    })
+}
+app.get("/download_docx", function (request, response) {
+    console.log('Method: GET, /download_json');
+    generateDOCX()
+    .then((msg)=>{
+        console.log(msg);
+        const file = dirForApp + 'data/answers.docx';
+        response.download(file, 'answers.docx');     
+    })
+    .catch((msg)=>{
+        console.log(msg);
+        response.sendStatus(500);
+    });   
 });
 
 //start app

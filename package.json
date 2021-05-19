@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/N120F2/answer-collector#readme",
   "dependencies": {
+    "docx": "^6.0.3",
     "express": "^4.17.1"
   }
 }
