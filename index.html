@@ -111,20 +111,22 @@
             }, 2000)
         }
         function loadContrTable(contributorsObj) {
+            const contributorsMap = new Map(Object.entries(contributorsObj));
+            const contributorsMapSorted = new Map([...contributorsMap.entries()].sort((a, b) => b[1] - a[1]));
             var container = document.getElementById('contributorsContainer');
             var tbl = document.createElement('table');            
             tbl.style.display = 'inline-block';//inline-block
             tbl.setAttribute('id', 'contribTable');      
             var tbdy = document.createElement('tbody');
-            for (let name in contributorsObj) {
+            for (let entry of contributorsMapSorted) {
                 var tr = document.createElement('tr');
                 for (var j = 0; j < 2; j++) {
                     var td = document.createElement('td');                    
                     if (j == 0){
-                        td.innerText = name;                      
+                        td.innerText = entry[0];                      
                     } 
                     else {
-                        td.innerText = contributorsObj[name];                        
+                        td.innerText = entry[1];                        
                     }
                     tr.appendChild(td);
                 }
