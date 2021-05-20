@@ -21,13 +21,33 @@
                     throw new Error("HTTP status " + response.status);
                 }
                 const result = await response.text();
-                console.log('Contributors loaded');
-                console.log(result);
                 outResult = JSON.parse(result);
             } catch (e) {
                 console.error(e);
             }
             return outResult;
+        }
+        async function getContributorsNames() {
+            return new Promise(
+                async (resolve, reject) => {
+                    try {
+                        const response = await fetch('http://' + location.hostname + ':8080/contributorsNames.json', {
+                            method: 'GET',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json;charset=utf-8'
+                            }
+                        });
+                        if (!response.ok) {
+                            throw new Error("HTTP status " + response.status);
+                        }
+                        const result = await response.text();
+                        let arrayNames = JSON.parse(result);
+                        resolve(arrayNames);
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
         }
         document.addEventListener('DOMContentLoaded', function () {
             let stroragedLogin = localStorage.getItem('login');
@@ -35,10 +55,29 @@
             getContributors()
                 .then((contributors) => {
                     loadContrTable(contributors);
+                    console.log('Contributors loaded');
                 })
                 .catch(() => {
                     console.log("Contributors table loading failed");
                 });
+            getContributorsNames()
+                .then((arrayNames) => {
+                    setConributorsNames(arrayNames);
+                    let stroragedLogin = localStorage.getItem('login');
+                    if (arrayNames.indexOf(stroragedLogin)>-1) {                       
+                        if (stroragedLogin !== null) document.getElementById("nameInput").value = stroragedLogin;
+                    }
+                    console.log(arrayNames);
+                    document.getElementById("page-container").style.display = "block";
+                    console.log('Contributors names loaded');
+                })
+                .catch((e) => {
+                    console.log("Contributors names loading failed");
+                    let errorMsg = document.createElement('div');
+                    errorMsg.innerHTML = "<span style='color:red; font-size: 130%;'>" + e + ". Contributors names loading failed"
+                    document.getElementById("page-container").before(errorMsg);
+                });
+
         });
         async function add(name, question, answer) {
             return new Promise(
@@ -89,7 +128,6 @@
             let result = null;
             try {
                 result = await add(name, question, answer);
-                console.log(result);
             }
             catch (e) {
                 console.log(e);
@@ -98,17 +136,17 @@
             switch (result) {
                 case "added":
                     document.getElementById("infoLabel").innerText = 'Answer successfully added';
-                    document.getElementById('infoLabel').style.color = 'black';                    
+                    document.getElementById('infoLabel').style.color = 'black';
                     break;
                 case "no_added":
                     document.getElementById("infoLabel").innerText = 'Answer already added.';
-                    document.getElementById('infoLabel').style.color = 'black';                
-                    break;            
+                    document.getElementById('infoLabel').style.color = 'black';
+                    break;
                 default:
                     document.getElementById("infoLabel").innerText = 'Some error! Try again.';
                     document.getElementById('infoLabel').style.color = 'red';
                     break;
-            }          
+            }
             document.getElementById('infoLabel').style.display = 'block';
             document.getElementById('enterButton').style.display = 'none';
             setTimeout(() => {
@@ -120,11 +158,11 @@
         function loadContrTable(contributorsObj) {
             const contributorsMap = new Map(Object.entries(contributorsObj));
             const contributorsMapSorted = new Map([...contributorsMap.entries()].sort((a, b) => b[1] - a[1]));
-            if(contributorsMapSorted.size == 0) return;
+            if (contributorsMapSorted.size == 0) return;
             var container = document.getElementById('contributorsContainer');
-            var tbl = document.createElement('table');            
+            var tbl = document.createElement('table');
             tbl.style.display = 'inline-block';//inline-block
-            tbl.setAttribute('id', 'contribTable');      
+            tbl.setAttribute('id', 'contribTable');
             var tbdy = document.createElement('tbody');
             var th = document.createElement('tr');
             tbdy.appendChild(th);
@@ -132,12 +170,12 @@
             for (let entry of contributorsMapSorted) {
                 var tr = document.createElement('tr');
                 for (var j = 0; j < 2; j++) {
-                    var td = document.createElement('td');                    
-                    if (j == 0){
-                        td.innerText = entry[0];                      
-                    } 
+                    var td = document.createElement('td');
+                    if (j == 0) {
+                        td.innerText = entry[0];
+                    }
                     else {
-                        td.innerText = entry[1];                        
+                        td.innerText = entry[1];
                     }
                     tr.appendChild(td);
                 }
@@ -146,13 +184,34 @@
             tbl.appendChild(tbdy);
             container.appendChild(tbl);
         }
+        function setConributorsNames(names) {
+            document.getElementById('nameInput').innerHTML = "";
+            //console.log(document.getElementById('nameInput').getElementsByTagName('option'));
+            let selectInput = document.getElementById("nameInput");
+
+            let optionHead = document.createElement('option');
+            optionHead.innerText = "Your name";
+            optionHead.value = "deny";
+            optionHead.selected = true;
+            optionHead.disabled = true;
+            selectInput.appendChild(optionHead);
+            //adding contibutors
+            for (let i = 0; i < names.length; i++) {
+                let option = document.createElement('option');
+                option.innerText = names[i];
+                option.value = names[i];
+                selectInput.appendChild(option);
+            }
+
+        }
+
     </script>
 
 
 </head>
 
 <body>
-    <div id="page-container">
+    <div id="page-container" style="display: none;">
 
         <div id="content-wrap">
             <header id="headTitle">
@@ -164,7 +223,7 @@
                         <span style="font-weight: bold;font-size: 130%">Top contributors</span>
                         <div id='contributorsContainer'> </div>
                     </td>
-                    <td >
+                    <td>
                         <form id='enterForm' action='javascript: document.getElementById("enterButton").click();'>
                             <label id="inputLabel1" style="font-weight: bold;">Please enter your name:</label></br>
                             <!--<input type="text" id="nameInput" placeholder="Your name.."></br>-->
@@ -188,14 +247,14 @@
                             <button type="button" class="form_button" id="enterButton"
                                 onclick='uploadData();'>Enter</button>
                         </form>
-                        <div id="downloadLinks"> 
-                            <button  onclick="document.location='/download_docx'">Download DOCX</button>
-                            <button  onclick="document.location='/download'">Download JSON</button>                            
-                        </div>  
+                        <div id="downloadLinks">
+                            <button onclick="document.location='/download_docx'">Download DOCX</button>
+                            <button onclick="document.location='/download'">Download JSON</button>
+                        </div>
                     </td>
-                </tr>      
-            </table>    
-                             
+                </tr>
+            </table>
+
         </div>
         <footer id="discription">
             Version: 0.0</br>
