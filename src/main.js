@@ -104,6 +104,15 @@ app.use(function (request, response, next) {
 });
 //stataic site
 const dirForApp = __dirname.slice(0, -3);
+//exclude scripts
+app.use((req, res, next) => {
+    //console.log(req.url);
+    var result = req.url.match(/^\/(src|data|\.log)\/.+(.*)$/)
+    if (result) {
+        return res.status(403).end('403 Forbidden')
+    }
+    next();
+})
 app.use(express.static(dirForApp));
 app.get("/", function (request, response) {
     console.log('Method: GET, /');
