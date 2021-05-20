@@ -95,13 +95,20 @@
                 console.log(e);
             }
             console.log(result);
-            if (result == "good") {
-                document.getElementById("infoLabel").innerText = 'Answer successfully added';
-                document.getElementById('infoLabel').style.color = 'black';
-            } else {
-                document.getElementById("infoLabel").innerText = 'Some error! Try again.';
-                document.getElementById('infoLabel').style.color = 'red';
-            }
+            switch (result) {
+                case "added":
+                    document.getElementById("infoLabel").innerText = 'Answer successfully added';
+                    document.getElementById('infoLabel').style.color = 'black';                    
+                    break;
+                case "no_added":
+                    document.getElementById("infoLabel").innerText = 'Answer already added.';
+                    document.getElementById('infoLabel').style.color = 'black';                
+                    break;            
+                default:
+                    document.getElementById("infoLabel").innerText = 'Some error! Try again.';
+                    document.getElementById('infoLabel').style.color = 'red';
+                    break;
+            }          
             document.getElementById('infoLabel').style.display = 'block';
             document.getElementById('enterButton').style.display = 'none';
             setTimeout(() => {

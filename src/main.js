@@ -116,6 +116,7 @@ app.post("/add", function (request, response) {
     let login = request.body.login;
     let question = request.body.question;
     let answer = request.body.answer;
+    let result = null;
     if (login !== undefined && question !== undefined && answer !== undefined) {
         //log all approved  request
         logData(login, question, answer);
@@ -129,13 +130,15 @@ app.post("/add", function (request, response) {
             console.log('New question added!');
             incrementContrubution(login);
             updateAnswersFile(answersMap);
+            result = "added";
         } else {
             console.log('Already added question!');
+            result = "no_added";
         }
         //map to obj, obj to json, json to file  
         response.status(200);
         response.set('Content-Type', 'application/json;charset=utf-8');
-        response.send('good');
+        response.send(result);
     } else {
         response.status(400);
         response.set('Content-Type', 'application/json;charset=utf-8');
