@@ -113,11 +113,15 @@
         function loadContrTable(contributorsObj) {
             const contributorsMap = new Map(Object.entries(contributorsObj));
             const contributorsMapSorted = new Map([...contributorsMap.entries()].sort((a, b) => b[1] - a[1]));
+            if(contributorsMapSorted.size == 0) return;
             var container = document.getElementById('contributorsContainer');
             var tbl = document.createElement('table');            
             tbl.style.display = 'inline-block';//inline-block
             tbl.setAttribute('id', 'contribTable');      
             var tbdy = document.createElement('tbody');
+            var th = document.createElement('tr');
+            tbdy.appendChild(th);
+            th.innerHTML = "<th>Name</th><th>Answers</th>";
             for (let entry of contributorsMapSorted) {
                 var tr = document.createElement('tr');
                 for (var j = 0; j < 2; j++) {
@@ -150,6 +154,7 @@
             <table style="width: 100%;">
                 <tr>
                     <td style="width: 300px;">
+                        <span style="font-weight: bold;font-size: 130%">Top contributors</span>
                         <div id='contributorsContainer'> </div>
                     </td>
                     <td >
@@ -171,16 +176,19 @@
                                 answer:</label></br>
                             <textarea id="answer" placeholder="Past answer here" rows="4" cols="50"></textarea></br>
 
-                            <label id="infoLabel" style="font-weight: bold; color:red; display:none"></label></br>
+                            <label id="infoLabel" style="font-weight: bold; color:red; display:none"></label>
 
                             <button type="button" class="form_button" id="enterButton"
                                 onclick='uploadData();'>Enter</button>
                         </form>
+                        <div id="downloadLinks"> 
+                            <button  onclick="document.location='/download_docx'">Download DOCX</button>
+                            <button  onclick="document.location='/download'">Download JSON</button>                            
+                        </div>  
                     </td>
-                </tr>                
-            </table>           
-            <a href="/download_docx" download="answers.json">Download DOCX answers </a></br>
-            <a href="/download" download="answers.json">Download JSON answers </a>         
+                </tr>      
+            </table>    
+                             
         </div>
         <footer id="discription">
             Version: 0.0</br>
