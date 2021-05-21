@@ -113,12 +113,12 @@ app.use((req, res, next) => {
     }
     next();
 })
-app.use(express.static(dirForApp));
+app.use(express.static(dirForApp + "/public"));
 app.get("/", function (request, response) {
     console.log('Method: GET, /');
     response.status(200);
     response.set('Content-Type', 'text/html;charset=utf-8');
-    response.sendFile(dirForApp + "/index.html");
+    response.sendFile(dirForApp + "public/index.html");
 });
 app.post("/add", function (request, response) {
     console.log('Method: POST, /add');
