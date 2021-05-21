@@ -16,11 +16,10 @@ function logData(login, question, answer) {
 }
 //database conect obj
 let conectDbConfig = {
-    user: 'postgres',
-    host: 'localhost',
-    database: 'answersdb',
-    password: 'root',
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
 };
 //database acces methods
 function incrementContrubutionOnDB(login) {
@@ -134,7 +133,10 @@ function getContributors() {
 
 }
 //server generation
-const port = 8080;
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8080;
+}
 const app = express();
 // body parser
 app.use(bodyParser.json({ extended: false }));
