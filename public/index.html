@@ -167,6 +167,7 @@
             var th = document.createElement('tr');
             tbdy.appendChild(th);
             th.innerHTML = "<th>Name</th><th>Answers</th>";
+            let answersCount = 0;
             for (let entry of contributorsMapSorted) {
                 var tr = document.createElement('tr');
                 for (var j = 0; j < 2; j++) {
@@ -176,6 +177,7 @@
                     }
                     else {
                         td.innerText = entry[1];
+                        answersCount += +entry[1];
                     }
                     tr.appendChild(td);
                 }
@@ -183,6 +185,12 @@
             }
             tbl.appendChild(tbdy);
             container.appendChild(tbl);
+            //counter
+            let counter = document.createElement('div');
+            counter.style.fontWeight = 'bold';
+            counter.style.fontSize = '110%';
+            counter.innerText = "Number of collected answers: " + answersCount;
+            tbl.after(counter);
         }
         function setConributorsNames(names) {
             document.getElementById('nameInput').innerHTML = "";
