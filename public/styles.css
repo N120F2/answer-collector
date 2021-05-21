@@ -47,7 +47,7 @@ td {
 
 body {
   background-color: darkgray;
-  background-image: url('public/img_girl.jpg');
+  background-image: url('img_girl.jpg');
   background-repeat: repeat;
   background-size: 100px;
   color: rgb(0, 0, 0);
