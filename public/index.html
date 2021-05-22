@@ -10,7 +10,7 @@
         async function getContributors() {
             let outResult = undefined;
             try {
-                const response = await fetch('http://' + location.hostname + ':8080/contributors', {
+                const response = await fetch('https://' + location.hostname + '/contributors', {
                     method: 'GET',
                     credentials: 'same-origin',
                     headers: {
@@ -31,7 +31,7 @@
             return new Promise(
                 async (resolve, reject) => {
                     try {
-                        const response = await fetch('http://' + location.hostname + ':8080/contributorsNames.json', {
+                        const response = await fetch('https://' + location.hostname + '/contributorsNames.json', {
                             method: 'GET',
                             credentials: 'same-origin',
                             headers: {
@@ -83,7 +83,7 @@
             return new Promise(
                 async (resolve, reject) => {
                     try {
-                        const response = await fetch('http://' + location.hostname + ':8080/add', {
+                        const response = await fetch('https://' + location.hostname + '/add', {
                             method: 'POST',
                             credentials: 'same-origin',
                             headers: {
