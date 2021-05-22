@@ -215,6 +215,20 @@ async function generateDOCX(answersObj) {
         });
         tableRows.push(tableRow);
     }
+    if(tableRows.length == 0){
+        tableRows.push(new docx.TableRow({
+            children: [
+                new docx.TableCell({
+                    children: [new docx.Paragraph("#no answers added now")],
+                    width: widthProp
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph("")],
+                    width: widthProp
+                })
+            ],
+        }))
+    }
     //generate table
     const table = new docx.Table({
         rows: tableRows
