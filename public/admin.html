@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> Admin </title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=0.45" />
+    <script>
+        'use strict'   
+        async function createTables() {
+            let key = document.getElementById('key').value;
+            return new Promise(
+                async (resolve, reject) => {
+                    try {
+                        const response = await fetch('https://' + location.hostname + '/admin/createTables', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json;charset=utf-8'
+                            },
+                            body: JSON.stringify({
+                                adminKey: key                              
+                            })
+                        });
+                        if (!response.ok) {
+                            throw new Error("HTTP status " + response.status);
+                        }
+                        const result = await response.text();
+                        console.log(result);
+                        resolve(result);    
+                    } catch (e) {
+                        console.error(e);
+                        reject("error");
+                    }
+                });
+        }     
+        async function createTables() {
+            let key = document.getElementById('key').value;
+            return new Promise(
+                async (resolve, reject) => {
+                    try {
+                        const response = await fetch('https://' + location.hostname + '/admin/clearTables', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json;charset=utf-8'
+                            },
+                            body: JSON.stringify({
+                                adminKey: key                              
+                            })
+                        });
+                        if (!response.ok) {
+                            throw new Error("HTTP status " + response.status);
+                        }
+                        const result = await response.text();
+                        console.log(result);
+                        resolve(result);                        
+                        
+                    } catch (e) {
+                        console.error(e);
+                        reject("error");
+                    }
+                });
+        }           
+
+    </script>
+
+
+</head>
+
+<body>
+    <div id="page-container">
+        <div id="content-wrap">
+            <header id="headTitle">
+                <h1 id='welcomeTitle'>Admin controls</h1>
+            </header>
+            <label id="inputLabel" style="font-weight: bold;">Please enter the admin key:</label></br>
+            <input id="adminKey" type="password" placeholder="Enter key here" ></br>
+
+            <label id="infoLabel" style="font-weight: bold; color:red; display:none"></label>
+            <div id="controlButtons">               
+                <button type="button" class="form_button" id="enterButton" onclick='createTables();' >Create tables</button></br>
+                <button type="button" class="form_button" id="enterButton" onclick='clearTables();' >Clear tables</button>
+            </div>
+        </div>
+        <footer id="discription">
+            Version: 2.0</br>
+            Uladzislau Sobal&copy;2021</br>
+            <a href="https://github.com/N120F2/answer-collector">Github</a>
+        </footer>
+    </div>
+</body>
+
+</html>

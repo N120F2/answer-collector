@@ -18,7 +18,7 @@ function logData(login, question, answer) {
 let conectDbConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      rejectUnauthorized: false
+        rejectUnauthorized: false
     }
 };
 //database acces methods
@@ -120,7 +120,7 @@ function getContributors() {
             let contributorsObj = {};
             for (let row of res.rows) {
                 contributorsObj[row.userName] = row.contribution;
-            }          
+            }
             resolve(contributorsObj)
         } catch (err) {
             console.log(err.stack);
@@ -135,7 +135,7 @@ function getContributors() {
 //server generation
 let port = process.env.PORT;
 if (port == null || port == "") {
-  port = 8080;
+    port = 8080;
 }
 const app = express();
 // body parser
@@ -188,9 +188,9 @@ app.get("/contributors", function (request, response) {
         response.set('Content-Type', 'application/json;charset=utf-8');
         response.send(contributorsJson);
     })
-    .catch(()=>{
-        response.sendStatus(500);
-    });
+        .catch(() => {
+            response.sendStatus(500);
+        });
 });
 async function generateDOCX(answersObj) {
     let tableRows = [];
@@ -291,6 +291,90 @@ app.get("/download_docx", function (request, response) {
             response.sendStatus(500);
         });
 
+});
+//admin page
+app.get("/admin", function (request, response) {
+    console.log('Method: GET, /admin');
+    response.status(200);
+    response.set('Content-Type', 'text/html;charset=utf-8');
+    response.sendFile(dirForApp + "public/admin.html");
+});
+let adminKey = process.env.ADMIN_KEY;
+if (adminKey == null || adminKey == "") {
+    adminKey = 'none';
+}
+function createTables() {
+    return new Promise(async (resolve, reject) => {
+        const client = new Client(conectDbConfig);
+        let query =
+            `CREATE TABLE answers (question text  PRIMARY KEY, answer text NOT NULL);
+    CREATE TABLE contributors("userName" text  PRIMARY KEY, contribution bigint NOT NULL) ;`;
+        try {
+            await client.connect();
+            const res = await client.query(query);
+            console.log(res);
+            resolve();
+        } catch (err) {
+            console.log(err.stack);
+            reject();
+        } finally {
+            await client.end();
+        }
+    });
+}
+function clearTables() {
+    return new Promise(async (resolve, reject) => {
+        const client = new Client(conectDbConfig);
+        let query =
+            `delete from contributors;delete from answers;`;
+        try {
+            await client.connect();
+            const res = await client.query(query);
+            console.log(res);
+            resolve();
+        } catch (err) {
+            console.log(err.stack);
+            reject();
+        } finally {
+            await client.end();
+        }
+    });
+}
+app.post("/admin/createTables", function (request, response) {
+    console.log('Method: POST, /admin/createTables');
+    let key = request.body.adminKey;
+    if (key !== undefined && key !== null && adminKey != 'none') {
+        if (key == adminKey) {
+            createTables()
+                .then(() => {
+                    response.status(200);
+                    response.set('Content-Type', 'text/html;charset=utf-8');
+                    response.send("created");
+                })
+                .catch(() => {
+                    response.sendStatus(500);
+                    response.send("error");
+                });
+        }
+    }
+});
+app.post("/admin/clearTables", function (request, response) {
+    console.log('Method: POST, /admin/clearTables');
+    let key = request.body.adminKey;
+    if (key !== undefined && key !== null && adminKey != 'none') {
+        if (key == adminKey) {
+            clearTables()
+                .then(() => {
+                    response.status(200);
+                    response.set('Content-Type', 'text/html;charset=utf-8');
+                    response.send("cleared");
+                })
+                .catch(() => {
+                    response.sendStatus(500);
+                    response.send("error");
+                });
+        }
+    }
 });
 //start app
 app.listen(port, () => {
