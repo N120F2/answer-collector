@@ -8,7 +8,7 @@
     <script>
         'use strict'   
         async function createTables() {
-            let key = document.getElementById('key').value;
+            let key = document.getElementById('adminKey').value;
             return new Promise(
                 async (resolve, reject) => {
                     try {
@@ -34,8 +34,8 @@
                     }
                 });
         }     
-        async function createTables() {
-            let key = document.getElementById('key').value;
+        async function clearTables() {
+            let key = document.getElementById('adminKey').value;
             return new Promise(
                 async (resolve, reject) => {
                     try {

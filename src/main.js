@@ -343,37 +343,38 @@ function clearTables() {
 app.post("/admin/createTables", function (request, response) {
     console.log('Method: POST, /admin/createTables');
     let key = request.body.adminKey;
-    if (key !== undefined && key !== null && adminKey != 'none') {
-        if (key == adminKey) {
-            createTables()
-                .then(() => {
-                    response.status(200);
-                    response.set('Content-Type', 'text/html;charset=utf-8');
-                    response.send("created");
-                })
-                .catch(() => {
-                    response.sendStatus(500);
-                    response.send("error");
-                });
-        }
+    if (key !== undefined && key !== null && adminKey != 'none' && key == adminKey) {
+        createTables()
+            .then(() => {
+                response.status(200);
+                response.set('Content-Type', 'text/html;charset=utf-8');
+                response.send("created");
+            })
+            .catch(() => {
+                response.sendStatus(500);
+            });
+    } else {
+        response.sendStatus(400);
+        response.send("invalidKey");
     }
 });
 app.post("/admin/clearTables", function (request, response) {
     console.log('Method: POST, /admin/clearTables');
     let key = request.body.adminKey;
-    if (key !== undefined && key !== null && adminKey != 'none') {
-        if (key == adminKey) {
-            clearTables()
-                .then(() => {
-                    response.status(200);
-                    response.set('Content-Type', 'text/html;charset=utf-8');
-                    response.send("cleared");
-                })
-                .catch(() => {
-                    response.sendStatus(500);
-                    response.send("error");
-                });
-        }
+    if (key !== undefined && key !== null && adminKey != 'none' && key == adminKey) {
+        clearTables()
+            .then(() => {
+                response.status(200);
+                response.set('Content-Type', 'text/html;charset=utf-8');
+                response.send("cleared");
+            })
+            .catch(() => {
+                response.sendStatus(500);
+            });
+    }
+    else {
+        response.sendStatus(400);
+        response.send("invalidKey");
     }
 });
 //start app
