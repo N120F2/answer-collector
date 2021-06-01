@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const fs = require('fs');
 const docx = require("docx");
 const { Client, Pool } = require('pg');
+const PDFDocument = require('pdfkit');
 
 //log all data
 function logData(login, question, answer) {
@@ -287,7 +288,7 @@ app.get("/download", function (request, response) {
 
 });
 app.get("/download_docx", function (request, response) {
-    console.log('Method: GET, /download_json');
+    console.log('Method: GET, /download_docx');
     getAnswers()
         .then((result) => {
             generateDOCX(result)
@@ -305,6 +306,75 @@ app.get("/download_docx", function (request, response) {
             response.sendStatus(500);
         });
 
+});
+async function generatePDF(answersObj) {
+    return new Promise((resolve, reject) => {
+        try {
+            let doc = new PDFDocument({
+                size: 'LEGAL', 
+                info: {
+                  Title: 'Answers',
+                  Author: 'Answers prepared using answer-collector.',
+                }
+              });            
+            var pdfFile = 'data/answers.pdf';
+            var pdfStream = fs.createWriteStream(pdfFile);    
+
+            doc
+            .fontSize(15)
+            .text("Answers prepared using answer-collector.",{
+                continued: true
+            })
+            .fillColor('blue')
+            .text("Github", {
+                link: "https://github.com/N120F2/answer-collector",
+                underline: true,
+            });
+            doc.moveDown();
+           
+            //adding q&a
+            if (fs.existsSync("fonts/MyFont.ttf")) {//Checking for custom font
+                doc.font("fonts/MyFont.ttf").fontSize(14).fillColor('black');                
+            }else{
+                doc.fontSize(14).fillColor('black');
+            }
+            let index=0;
+            for (let key in answersObj) {
+                index++;                
+                doc.text(index+". Question: "+key);               
+                doc.text("Answer: " + answersObj[key], {oblique:15});
+                doc.moveDown();
+            }
+            
+            doc.pipe(pdfStream);
+            doc.end();
+          } catch (err) {
+            console.error('MakePDF ERROR: ' + err.message);
+            reject("Error");
+          }        
+          pdfStream.addListener('finish', function() {
+            // HERE PDF FILE IS DONE
+            resolve("Pdf generated");
+          });      
+    })       
+}
+app.get("/download_pdf", function (request, response) {
+    console.log('Method: GET, /download_pdf');
+    getAnswers()
+        .then((answers) => {            
+            generatePDF(answers)
+            .then((msg) => {
+                console.log(msg);
+                const file = dirForApp + 'data/answers.pdf';
+                response.download(file, 'answers.pdf');
+            })
+            .catch((msg) => {
+                console.log(msg);
+                response.sendStatus(500);
+            });
+        }).catch(() => {
+            response.sendStatus(500);
+        });      
 });
 //admin page
 app.get("/admin", function (request, response) {
